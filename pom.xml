@@ -22,16 +22,16 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <!--<url>https://github.com/Taymindis/atomic_threadpool</url>-->
-    <!--<scm>-->
-    <!--<url>https://github.com/Taymindis/atomic_threadpool.git</url>-->
-    <!--<connection>scm:git:git://github.com/Taymindis/atomic_threadpool.git</connection>-->
-    <!--<developerConnection>scm:git:git://github.com/Taymindis/atomic_threadpool.git</developerConnection>-->
-    <!--</scm>-->
-    <!--<issueManagement>-->
-    <!--<system>GitHub</system>-->
-    <!--<url>https://github.com/Taymindis/atomic_threadpool/issues</url>-->
-    <!--</issueManagement>-->
+    <url>https://github.com/Taymindis/scheduler</url>
+    <scm>
+        <url>https://github.com/Taymindis/scheduler.git</url>
+        <connection>scm:git:git://github.com/Taymindis/atomic_threadpool.git</connection>
+        <developerConnection>scm:git:git://github.com/Taymindis/atomic_threadpool.git</developerConnection>
+    </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/Taymindis/scheduler/issues</url>
+    </issueManagement>
 
     <developers>
         <developer>
