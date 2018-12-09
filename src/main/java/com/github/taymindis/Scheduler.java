@@ -1,6 +1,8 @@
 package com.github.taymindis;
 
 import java.time.*;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Calendar;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -215,6 +217,13 @@ public class Scheduler {
 //        System.out.print(duration.getSeconds() + "\n");
         return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),  zonedNextTarget).toMillis();
     }
+
+    private long computeNextDelay(int sec, int min, int hour, DayOfWeek dayOfWeek) {
+        ZoneId currentZone = ZoneId.systemDefault();
+        ZonedDateTime zonedNextTarget = ZonedDateTime.of(LocalDate.now().with(TemporalAdjusters.next(dayOfWeek)).atTime(hour, min, sec), currentZone);
+        return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),  zonedNextTarget).toMillis();
+    }
+
 
     private static boolean isValidParam(int... vars) {
         for (int i = 0; i < vars.length; i++) {
