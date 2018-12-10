@@ -1,6 +1,7 @@
 package com.github.taymindis;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.concurrent.Executors;
@@ -172,6 +173,41 @@ public class Scheduler {
         }
     }
 
+    public boolean scheduleAtDayOfWeekTime(final SchedulerCommand command,
+                                           final int sec, final int min, final int hour, DayOfWeek[] dayOfWeeks,
+                                           final long periodOfWeek, final boolean scheduleNextJobBeforeExecuteTask) {
+
+
+        /** Period only applicable to  >= 0, no repeatable at this function , only interval**/
+        if (isValidParam(sec, min, hour) && dayOfWeeks.length > 0) {
+            for (DayOfWeek d : dayOfWeeks) {
+                ScheduleWeekCommand weekCommand = new ScheduleWeekCommand(scheduledExecutorService, d, periodOfWeek, command,
+                        scheduleNextJobBeforeExecuteTask, hour, min, sec);
+                scheduledExecutorService.schedule(weekCommand, computeNextDelay(sec, min, hour, d), TimeUnit.MILLISECONDS);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean scheduleAtMonthAndTime(final SchedulerCommand command,
+                                          final int sec, final int min, final int hour, int dayOfMonth, Month[] months,
+                                          final long periodOfMonth, final boolean scheduleNextJobBeforeExecuteTask) {
+
+
+        if (isValidParam(sec, min, hour, dayOfMonth) && months.length > 0) {
+            for (Month m : months) {
+                ScheduleMonthCommand monthCommand = new ScheduleMonthCommand(scheduledExecutorService, m, periodOfMonth,
+                        command, scheduleNextJobBeforeExecuteTask, dayOfMonth, hour, min, sec);
+                scheduledExecutorService.schedule(monthCommand, computeNextDelay(sec, min, hour, dayOfMonth, m), TimeUnit.MILLISECONDS);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void forceShutdown() {
         scheduledExecutorService.shutdownNow();
     }
@@ -187,7 +223,7 @@ public class Scheduler {
     }
 
     public String getStatistic() {
-        if(this.scheduleThreadFactory == null) {
+        if (this.scheduleThreadFactory == null) {
             return null;
         }
         return scheduleThreadFactory.getStats();
@@ -215,13 +251,40 @@ public class Scheduler {
 //        }
 //        Duration duration = Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),  ZonedDateTime.of(year, month, day, hour, min, sec, 0, currentZone));
 //        System.out.print(duration.getSeconds() + "\n");
-        return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),  zonedNextTarget).toMillis();
+        return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone), zonedNextTarget).toMillis();
     }
 
     private long computeNextDelay(int sec, int min, int hour, DayOfWeek dayOfWeek) {
         ZoneId currentZone = ZoneId.systemDefault();
-        ZonedDateTime zonedNextTarget = ZonedDateTime.of(LocalDate.now().with(TemporalAdjusters.next(dayOfWeek)).atTime(hour, min, sec), currentZone);
-        return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),  zonedNextTarget).toMillis();
+        LocalDate nextTarget = LocalDate.now().with(TemporalAdjusters.nextOrSame(dayOfWeek));
+        ZonedDateTime zonedNextTarget = ZonedDateTime.of(nextTarget.atTime(hour, min, sec), currentZone);
+        return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone), zonedNextTarget).toMillis();
+    }
+
+    private long computeNextDelay(int sec, int min, int hour, int dayOfMonth, Month monthOfYear) {
+        ZoneId currentZone = ZoneId.systemDefault();
+        int currMonth = LocalDate.now().getMonth().getValue();
+        int nextTargetMonth = monthOfYear.getValue();
+        int gap;
+        long gapDateTime;
+        if ((gap = nextTargetMonth - currMonth) <= 0) {
+            if (gap == 0) {
+                LocalDateTime nextTargetDateTime = LocalDate.now().withDayOfMonth(dayOfMonth).atTime(hour, min, sec);
+                if ( (gapDateTime = (Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),
+                        ZonedDateTime.of(nextTargetDateTime, currentZone)).toMillis())) > 1000 ) {
+                    return gapDateTime;
+                } else {
+                    gap = 12;
+                }
+            } else {
+                gap += 12;
+            }
+        }
+
+        LocalDate nextTarget = LocalDate.now().plusMonths(gap);
+        LocalDateTime nextTargetDateTime = nextTarget.withDayOfMonth(dayOfMonth).atTime(hour, min, sec);
+        return Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),
+                ZonedDateTime.of(nextTargetDateTime, currentZone)).toMillis();
     }
 
 
