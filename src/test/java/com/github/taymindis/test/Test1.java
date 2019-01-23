@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -39,10 +40,10 @@ public class Test1 {
 //        ZonedDateTime zonedNextTarget = ZonedDateTime.of(nextTarget.atTime(11, 54, 15), currentZone);
 //        System.out.println(Duration.between(ZonedDateTime.of(LocalDateTime.now(), currentZone),  zonedNextTarget).getSeconds());
 //        scheduler.scheduleAtDayOfWeekTime(a, 28, 24, 15, new DayOfWeek[]{DayOfWeek.MONDAY, DayOfWeek.TUESDAY}, 1, true);
-        scheduler.scheduleAtMonthAndTime(a, 0, 31, 15, 10, new Month[]{Month.DECEMBER}, 1, true);
-
+//        scheduler.scheduleAtMonthAndTime(a, 0, 31, 15, 10, new Month[]{Month.DECEMBER}, 1, true);
+        scheduler.scheduleAtSpecificDateTime(a, 10, 4, 12, 23, 1, 2019, 0, TimeUnit.SECONDS, false);
         while (true) {
-            Thread.sleep(30000);
+            Thread.sleep(500);
 //            System.out.println(scheduler.getStatistic());
         }
 
